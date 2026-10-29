@@ -5,23 +5,72 @@ using System.Threading.Tasks;
 
 namespace APIHandler.Services.GuestSessions;
 
-public class GuestAuthorizationService(IGuestSessionService guestSessionService) : IGuestAuthorizationService
+public class GuestAuthorizationService(
+    IGuestSessionService guestSessionService) : IGuestAuthorizationService
 {
-    public async ValueTask<APIGatewayProxyResponse?> ValidateAsync(APIGatewayProxyRequest request, ILambdaContext context, string guestSessionid)
+    public async ValueTask<APIGatewayProxyResponse?> ValidateAsync(
+        APIGatewayProxyRequest request,
+        ILambdaContext context,
+        string guestSessionId)
     {
-        if (!request.Headers.TryGetValue("Authorization", out string? authorizationValue))
+        var claims = request.RequestContext?.Authorizer?.Claims;
+
+        // Якщо користувач авторизований у системі,
+        // перевіряємо, чи належить йому Owner-сесія.
+        if (claims != null &&
+            claims.TryGetValue("sub", out var userId) &&
+            !string.IsNullOrWhiteSpace(userId))
+        {
+            bool isOwner = await guestSessionService.IsOwnerSessionAsync(
+                userId,
+                guestSessionId);
+
+            if (isOwner)
+            {
+                return null;
+            }
+        }
+
+        // Якщо це не Owner-сесія, перевіряємо гостьовий токен.
+        if (request.Headers == null ||
+            !request.Headers.TryGetValue(
+                "Authorization",
+                out string? authorizationValue) ||
+            string.IsNullOrWhiteSpace(authorizationValue))
+        {
             return CreateErrorResponse(context);
+        }
 
         const string BearerString = "Bearer ";
-        if (!authorizationValue.StartsWith(BearerString) || authorizationValue.Length <= BearerString.Length)
+
+        if (!authorizationValue.StartsWith(
+                BearerString,
+                System.StringComparison.OrdinalIgnoreCase) ||
+            authorizationValue.Length <= BearerString.Length)
+        {
             return CreateErrorResponse(context);
+        }
 
-        string token = authorizationValue[BearerString.Length..];
-        bool authorized = await guestSessionService.IsAuthorizedAsync(token, guestSessionid);
+        string token = authorizationValue[BearerString.Length..].Trim();
 
-        return !authorized ? CreateErrorResponse(context) : null;
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return CreateErrorResponse(context);
+        }
+
+        bool authorized = await guestSessionService.IsAuthorizedAsync(
+            token,
+            guestSessionId);
+
+        return authorized ? null : CreateErrorResponse(context);
     }
 
-    private static APIGatewayProxyResponse CreateErrorResponse(ILambdaContext context)
-        => ResponseBuilder.CreateErrorResponse(401, "Invalid guest session token", context.Logger);
+    private static APIGatewayProxyResponse CreateErrorResponse(
+        ILambdaContext context)
+    {
+        return ResponseBuilder.CreateErrorResponse(
+            401,
+            "Invalid guest session token",
+            context.Logger);
+    }
 }

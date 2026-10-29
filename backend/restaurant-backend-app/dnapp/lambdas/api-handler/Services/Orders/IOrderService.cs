@@ -11,7 +11,7 @@ public interface IOrderService
 
     Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(string customerId);
 
-    Task AddOrderAsync(Order order);
+    Task AddOrderAsync(Order order, bool submittedByCustomer = false);
 
     Task AddOrderForWaiterAsync(Order order);
 

@@ -9,6 +9,9 @@ using APIHandler.Repositories.Reservations;
 using APIHandler.Repositories.Tables;
 using APIHandler.Services.Auth;
 using APIHandler.Services.Locations;
+using APIHandler.Constants.Orders;
+using APIHandler.Services.Orders;
+using System.Linq;
 using System;
 using System.Threading.Tasks;
 
@@ -20,7 +23,8 @@ public class GroupReservationService(
     IReservationRepository reservationRepository,
     IGuestSessionRepository guestSessionRepository,
     IUserService userService,
-    ILocationService locationService) : IGroupReservationService
+    ILocationService locationService,
+    IOrderService orderService) : IGroupReservationService
 {
     private const string DefaultRestaurantName = "Green & Tasty";
 
@@ -142,5 +146,104 @@ public class GroupReservationService(
 
         return new GetGroupInviteTokenResponse(groupReservation.ReservationToken);
     }
+    public async Task ConfirmGroupPreOrderAsync(
+    string userId,
+    string groupReservationId)
+{
+    var group = await groupReservationRepository
+        .GetGroupReservationByIdAsync(groupReservationId)
+        ?? throw new GroupReservationNotFoundException();
+
+    var reservation = await reservationRepository
+        .GetReservationByIdAsync(group.ReservationId)
+        ?? throw new ReservationNotFoundException(
+            $"Reservation '{group.ReservationId}' was not found.");
+
+    if (string.IsNullOrWhiteSpace(reservation.CustomerId) ||
+        !string.Equals(
+            reservation.CustomerId,
+            userId,
+            StringComparison.OrdinalIgnoreCase))
+    {
+        throw new ActionForbiddenException(
+            "Only the reservation owner can confirm the group pre-order.");
+    }
+
+    if (group.Status == GroupReservationStatus.Submitted)
+    {
+        throw new GroupReservationSubmittedException();
+    }
+
+    if (group.Status == GroupReservationStatus.Closed)
+    {
+        throw new GroupReservationExpiredException();
+    }
+
+    if (reservation.Status != ReservationStatus.Reserved)
+    {
+        throw new ValidationException(
+            "Group pre-order can only be confirmed for a reserved reservation.");
+    }
+
+    var sessions = await guestSessionRepository
+        .GetAllByGroupReservationIdAsync(groupReservationId);
+
+    // Беремо лише сесії, які учасники вже подали.
+    var submittedSessions = sessions
+        .Where(session => session.IsSubmitted)
+        .ToList();
+
+    if (submittedSessions.Count == 0)
+    {
+        throw new ValidationException(
+            "There are no submitted guest sessions to confirm.");
+    }
+
+    // Об'єднуємо однакові страви за DishId.
+    var consolidatedDishes = submittedSessions
+        .SelectMany(session => session.Dishes)
+        .GroupBy(dish => dish.DishId)
+        .Select(dishGroup => new OrderItem
+        {
+            DishId = dishGroup.Key,
+            Quantity = dishGroup.Sum(dish => dish.Quantity),
+            State = OrderItemState.Pending
+        })
+        .ToList();
+
+    if (consolidatedDishes.Count == 0)
+    {
+        throw new ValidationException(
+            "There are no dishes in the submitted sessions.");
+    }
+
+    var table = await tableRepository.GetTableAsync(reservation.TableId)
+        ?? throw new ValidationException(
+            "Associated table was not found.");
+
+    var location = await locationService
+        .GetLocationByIdAsync(table.LocationId);
+
+    var reservationTime =
+        $"{reservation.StartTime:MMM dd, yyyy, h:mm tt} - " +
+        $"{reservation.EndTime:h:mm tt}";
+
+    var order = new Order
+    {
+        OrderId = Guid.NewGuid().ToString(),
+        CustomerId = reservation.CustomerId,
+        ReservationId = reservation.Id,
+        ReservationAddress = location?.Address ?? "Unknown Address",
+        ReservationTime = reservationTime,
+        Dishes = consolidatedDishes,
+        Status = OrderStatus.Created
+    };
+
+    await orderService.AddOrderAsync(order,submittedByCustomer: true);
+
+    group.Status = GroupReservationStatus.Submitted;
+
+    await groupReservationRepository.SaveGroupReservationAsync(group);
+}
 }
 

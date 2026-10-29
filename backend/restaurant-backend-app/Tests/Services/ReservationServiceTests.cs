@@ -9,11 +9,14 @@ using APIHandler.Models.Reservations;
 using APIHandler.Repositories.Auth;
 using APIHandler.Repositories.Locations;
 using APIHandler.Repositories.Reservations;
+using System;
+using System.Threading.Tasks;
 using APIHandler.Services;
 using APIHandler.Services.Locations;
 using APIHandler.Services.Orders;
 using APIHandler.Services.Reservations;
 using APIHandler.Services.Waiters;
+using APIHandler.Services.GuestSessions;
 using APIHandler.Models.WaiterList;
 using APIHandler.Exceptions;
 using APIHandler.Services.GroupReservations;
@@ -30,21 +33,34 @@ public class ReservationServiceTests
     private readonly Mock<IOrderService> _mockOrderService = new();
     private readonly Mock<ILambdaLogger> _mockLogger = new();
     private readonly Mock<IGroupReservationService> _mockGroupReservationService = new();
+    private readonly Mock<IGuestSessionService> _mockGuestSessionService = new();
 
     private readonly ReservationService _reservationService;
 
-    public ReservationServiceTests()
-    {
-        _reservationService = new ReservationService(
-            _mockReservationRepository.Object,
-            _mockLocationRepository.Object,
-            _mockUserRepository.Object,
-            _mockWaiterService.Object,
-            _mockLocationService.Object,
-            _mockOrderService.Object,
-            _mockGroupReservationService.Object
-        );
-    }
+public ReservationServiceTests()
+{
+    _mockGroupReservationService
+    .Setup(service => service.CreateGroupReservationAsync(
+        It.IsAny<string>()))
+    .Returns((string reservationId) =>
+        Task.FromResult(new GroupReservation
+        {
+            GroupReservationId = Guid.NewGuid().ToString(),
+            ReservationId = reservationId,
+            ReservationToken = Guid.NewGuid().ToString("N"),
+            Status = GroupReservationStatus.Open
+        }));
+    _reservationService = new ReservationService(
+        _mockReservationRepository.Object,
+        _mockLocationRepository.Object,
+        _mockUserRepository.Object,
+        _mockWaiterService.Object,
+        _mockLocationService.Object,
+        _mockOrderService.Object,
+        _mockGroupReservationService.Object,
+        _mockGuestSessionService.Object
+    );
+}
 
     [Theory, AutoData]
     public async Task CreateReservationAsync_ValidCustomerRequest_ShouldReturnReservationResponse(
@@ -766,6 +782,11 @@ public class ReservationServiceTests
         var result = await _reservationService.UpdateReservationAsync(reservation);
 
         _mockGroupReservationService.Verify(r => r.CreateGroupReservationIfDoesNotExistAsync(userId, reservation.Id));
+        _mockGuestSessionService.Verify(
+        service => service.EnsureGroupOwnerSessionAsync(
+        userId,
+        reservation.Id),
+        Times.Once);
     }
 
     [Theory]

@@ -86,28 +86,38 @@ public class OrderService : IOrderService
         return await _orderRepository.GetOrderByReservationIdAsync(reservationId);
     }
 
-    public async Task AddOrderAsync(Order order)
+    public async Task AddOrderAsync(
+    Order order,
+    bool submittedByCustomer = false)
+{
+    var reservation = await LoadReservationAsync(order.ReservationId);
+
+    EnsurePreOrderEditable(reservation.StartTime);
+
+    var existingActiveOrder = await GetActiveOrderByReservationIdAsync(
+        order.ReservationId,
+        throwIfNotFound: false);
+
+    if (existingActiveOrder != null)
     {
-        var reservation = await LoadReservationAsync(order.ReservationId);
-        EnsurePreOrderEditable(reservation.StartTime);
-
-        var existingActiveOrder = await GetActiveOrderByReservationIdAsync(order.ReservationId, throwIfNotFound: false);
-        if (existingActiveOrder != null)
-        {
-            throw new ValidationException($"Active order already exists for reservation {order.ReservationId}.");
-        }
-
-        order.Status = OrderStatus.Created;
-        await _orderRepository.SaveOrderAsync(order);
-
-        if (!string.IsNullOrEmpty(reservation.WaiterId))
-        {
-            await _notificationService.CreateOrderNotificationAsync(
-                reservation.WaiterId,
-                order.OrderId,
-                order.ReservationId);
-        }
+        throw new ValidationException(
+            $"Active order already exists for reservation {order.ReservationId}.");
     }
+
+    order.Status = submittedByCustomer
+        ? OrderStatus.SubmittedByCustomer
+        : OrderStatus.Created;
+
+    await _orderRepository.SaveOrderAsync(order);
+
+    if (!string.IsNullOrEmpty(reservation.WaiterId))
+    {
+        await _notificationService.CreateOrderNotificationAsync(
+            reservation.WaiterId,
+            order.OrderId,
+            order.ReservationId);
+    }
+}
 
     public async Task AddOrderForWaiterAsync(Order order)
     {

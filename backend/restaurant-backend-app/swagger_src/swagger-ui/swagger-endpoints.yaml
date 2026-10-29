@@ -515,6 +515,127 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+
+  /guest/groups/{groupReservationId}/confirm-pre-order:
+    post:
+      tags:
+        - Guest Sessions
+      summary: Confirm consolidated group pre-order
+      description: >
+        Confirms the consolidated pre-order for a group reservation.
+        Only submitted guest sessions are included, and dishes are
+        combined by dish ID.
+      operationId: confirmGroupPreOrder
+      parameters:
+        - name: groupReservationId
+          in: path
+          required: true
+          description: The ID of the group reservation
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Group pre-order confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid request or no submitted sessions to confirm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Only the reservation owner can confirm the group pre-order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Group reservation or reservation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Group reservation is already submitted or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /guest/groups/{groupReservationId}/owner-session:
+    get:
+      tags:
+        - Guest Sessions
+      summary: Get owner's guest session
+      description: Retrieves the guest session belonging to the authenticated reservation owner.
+      operationId: getOwnerGuestSession
+      parameters:
+        - name: groupReservationId
+          in: path
+          required: true
+          description: The ID of the group reservation
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Owner guest session retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: Owner
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderItemResponse'
+                  total:
+                    type: number
+                    format: double
+                    example: 0
+                  isSubmitted:
+                    type: boolean
+                    example: false
+        '400':
+          description: Missing group reservation ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: The user is not the reservation owner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Group reservation, reservation, or owner session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     bearerAuth:
