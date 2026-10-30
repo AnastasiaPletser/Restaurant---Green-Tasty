@@ -445,9 +445,10 @@ public class GroupReservationServiceTests
     .Returns(Task.CompletedTask);
 
         // Act
-        await _service.ConfirmGroupPreOrderAsync(
-            userId,
-            groupReservation.GroupReservationId);
+       await _service.ConfirmGroupPreOrderAsync(
+        userId,
+        groupReservation.GroupReservationId,
+        reservation.Id);
 
         // Assert
         Assert.NotNull(capturedOrder);

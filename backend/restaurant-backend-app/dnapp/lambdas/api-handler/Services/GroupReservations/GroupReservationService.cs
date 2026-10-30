@@ -14,6 +14,7 @@ using APIHandler.Services.Orders;
 using System.Linq;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace APIHandler.Services.GroupReservations;
 
@@ -146,18 +147,25 @@ public class GroupReservationService(
 
         return new GetGroupInviteTokenResponse(groupReservation.ReservationToken);
     }
-    public async Task ConfirmGroupPreOrderAsync(
+    public async Task<List<OrderItem>> ConfirmGroupPreOrderAsync(
     string userId,
-    string groupReservationId)
+    string groupReservationId,
+    string reservationId)
 {
     var group = await groupReservationRepository
         .GetGroupReservationByIdAsync(groupReservationId)
         ?? throw new GroupReservationNotFoundException();
 
-    var reservation = await reservationRepository
-        .GetReservationByIdAsync(group.ReservationId)
-        ?? throw new ReservationNotFoundException(
-            $"Reservation '{group.ReservationId}' was not found.");
+    if (group.ReservationId != reservationId)
+{
+    throw new ValidationException(
+        "Reservation does not belong to this group reservation.");
+}
+
+var reservation = await reservationRepository
+    .GetReservationByIdAsync(reservationId)
+    ?? throw new ReservationNotFoundException(
+        $"Reservation '{reservationId}' was not found.");
 
     if (string.IsNullOrWhiteSpace(reservation.CustomerId) ||
         !string.Equals(
@@ -236,7 +244,7 @@ public class GroupReservationService(
         ReservationAddress = location?.Address ?? "Unknown Address",
         ReservationTime = reservationTime,
         Dishes = consolidatedDishes,
-        Status = OrderStatus.Created
+        Status = OrderStatus.SubmittedByCustomer
     };
 
     await orderService.AddOrderAsync(order,submittedByCustomer: true);
@@ -244,6 +252,8 @@ public class GroupReservationService(
     group.Status = GroupReservationStatus.Submitted;
 
     await groupReservationRepository.SaveGroupReservationAsync(group);
+
+    return consolidatedDishes;
 }
 }
 

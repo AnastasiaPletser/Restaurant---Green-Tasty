@@ -3,7 +3,11 @@ using Amazon.Lambda.Core;
 using APIHandler.Exceptions;
 using APIHandler.Helpers;
 using APIHandler.Models;
+using APIHandler.Models.GroupReservation;
 using APIHandler.Services.GroupReservations;
+using System;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace APIHandler.Handlers.GroupReservations;
@@ -37,15 +41,47 @@ public class ConfirmGroupPreOrderHandler(
                 context.Logger);
         }
 
+        SubmitGroupPreOrderRequest? body;
+
         try
         {
-            await groupReservationService.ConfirmGroupPreOrderAsync(
-                userId,
-                groupReservationId);
+            body = JsonSerializer.Deserialize<SubmitGroupPreOrderRequest>(
+                request.Body,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+        }
+        catch (JsonException ex)
+        {
+            return ResponseBuilder.CreateErrorResponse(
+                400,
+                ex.Message,
+                context.Logger);
+        }
 
-            return ResponseBuilder.CreateSuccessResponse(
-                new SuccessResponse(
-                    "Group pre-order confirmed successfully."));
+        if (body is null || string.IsNullOrWhiteSpace(body.ReservationId))
+        {
+            return ResponseBuilder.CreateErrorResponse(
+                400,
+                "Missing 'reservationId' in request body.",
+                context.Logger);
+        }
+
+        try
+        {
+            var result = await groupReservationService.ConfirmGroupPreOrderAsync(
+                userId,
+                groupReservationId,
+                body.ReservationId);
+
+            var response = result.Select(item => new
+        {
+            dishId = item.DishId,
+            quantity = item.Quantity
+        }).ToList();
+
+        return ResponseBuilder.CreateSuccessResponse(response);
         }
         catch (GroupReservationNotFoundException ex)
         {
@@ -53,11 +89,6 @@ public class ConfirmGroupPreOrderHandler(
                 404, ex.Message, context.Logger);
         }
         catch (ReservationNotFoundException ex)
-        {
-            return ResponseBuilder.CreateErrorResponse(
-                404, ex.Message, context.Logger);
-        }
-        catch (GuestSessionNotFoundException ex)
         {
             return ResponseBuilder.CreateErrorResponse(
                 404, ex.Message, context.Logger);

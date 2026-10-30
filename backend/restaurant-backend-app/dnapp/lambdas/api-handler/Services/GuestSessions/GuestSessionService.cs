@@ -553,6 +553,9 @@ public async Task EnsureGroupOwnerSessionAsync(
 
         if (session.IsOwnerSession)
         {
+     throw new ValidationException("Owner session cannot be deleted.");
+        }
+        {
             var groupReservation =
                 await groupReservationRepository.GetGroupReservationByIdAsync(
                     session.GroupReservationId);
