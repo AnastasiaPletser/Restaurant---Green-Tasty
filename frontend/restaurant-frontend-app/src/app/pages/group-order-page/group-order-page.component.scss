@@ -1,0 +1,89 @@
+@use 'app/shared/styles/abstracts/colors' as color;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: color.$bg-yellow;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  color: color.$neutral-900;
+}
+
+h1 {
+  margin: 0 0 24px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.reservation-info {
+  padding: 24px;
+  margin-bottom: 24px;
+  background: color.$neutral-0;
+  border: 1px solid color.$neutral-200;
+  border-radius: 12px;
+
+  h2 {
+    margin: 0 0 12px;
+    color: color.$green-600;
+    font-size: 22px;
+  }
+
+  p {
+    margin: 6px 0;
+    color: color.$neutral-700;
+  }
+}
+
+.participants {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.grand-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 420px;
+  padding: 20px 24px;
+  margin: 24px 0 0 auto;
+  background: color.$green-100;
+  border: 1px solid color.$green-150;
+  border-radius: 12px;
+
+  h2,
+  p {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  p {
+    color: color.$green-600;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  .participants {
+    grid-template-columns: 1fr;
+  }
+
+  .grand-total {
+    max-width: none;
+  }
+}

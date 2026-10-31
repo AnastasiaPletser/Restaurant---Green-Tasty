@@ -14,11 +14,11 @@ export class ToastService {
     this.open({ message, title, type: "success" },3000,['toast-success']);
   }
 
-  info(message: string, title?: string): void {
-    this.open({ message,title,type: "info" }, 3000, ['toast-info']);
+    info(message: string, title?: string): void {
+    this.open({ message, title, type: 'info' }, 3000, ['toast-info']);
   }
 
-  private open(data: ToastData,  duration: number, panelClass: string[]): void {
+  private open(data: ToastData, duration: number, panelClass: string[]): void {
     this.snackBar.openFromComponent(ToastComponent, {
       data,
       duration,

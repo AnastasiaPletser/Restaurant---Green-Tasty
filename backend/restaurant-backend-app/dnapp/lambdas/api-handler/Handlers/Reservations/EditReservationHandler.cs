@@ -8,6 +8,8 @@ using APIHandler.Mappers;
 using APIHandler.Models.Reservations;
 using APIHandler.Models.Users;
 using APIHandler.Services.Locations;
+using APIHandler.Services.GroupReservations;
+using APIHandler.Services.GuestSessions;
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -23,11 +25,21 @@ public class EditReservationHandler : IApiRequestHandler
 
     private readonly IDynamoDBContext _dbContext;
     private readonly ILocationService _locationService;
+    private readonly IGroupReservationService _groupReservationService;
+    private readonly IGuestSessionService _guestSessionService;
 
-    public EditReservationHandler(IDynamoDBContext dbContext, ILocationService locationService)
+    public EditReservationHandler(
+    IDynamoDBContext dbContext,
+    ILocationService locationService,
+    IGroupReservationService groupReservationService,
+    IGuestSessionService guestSessionService)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+    _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+    _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+    _groupReservationService = groupReservationService
+        ?? throw new ArgumentNullException(nameof(groupReservationService));
+    _guestSessionService = guestSessionService
+        ?? throw new ArgumentNullException(nameof(guestSessionService));
     }
 
     public async Task<APIGatewayProxyResponse> HandleRequest(APIGatewayProxyRequest request, ILambdaContext context)
@@ -96,6 +108,19 @@ public class EditReservationHandler : IApiRequestHandler
         {
             context.Logger.LogError($"[ERROR] Failed to save reservation: {saveError}");
             return ResponseBuilder.CreateErrorResponse(500, "Failed to save reservation", context.Logger);
+        }
+
+        if (reservation.CustomerId is not null &&
+        reservation.Status == ReservationStatus.Reserved &&
+        reservation.GuestCount >= 2)
+        {
+        await _groupReservationService.CreateGroupReservationIfDoesNotExistAsync(
+            reservation.CustomerId,
+            reservation.Id);
+
+        await _guestSessionService.EnsureGroupOwnerSessionAsync(
+           reservation.CustomerId,
+            reservation.Id);
         }
 
         var location = await TryGetLocationAsync(table.Id);

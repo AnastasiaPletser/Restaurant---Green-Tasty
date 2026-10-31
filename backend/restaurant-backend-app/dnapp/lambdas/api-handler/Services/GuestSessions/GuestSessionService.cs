@@ -266,11 +266,17 @@ public async Task<GetAllSessionsResponse> GetAllSessionsAsync(
         await ValidateReservationOwnerAsync(groupReservationId, userId);
 
         var session = await guestSessionRepository.GetByGuestSessionId(guestSessionId)
+
             ?? throw new GuestSessionNotFoundException($"Guest session with id {guestSessionId} not found.");
 
         if (session.GroupReservationId != groupReservationId)
         {
             throw new ValidationException("Guest session does not belong to this group reservation.");
+        }
+
+        if (session.IsOwnerSession)
+        {
+            throw new ValidationException("Owner session cannot be deleted.");
         }
 
         await guestSessionRepository.DeleteAsync(session);
@@ -552,9 +558,6 @@ public async Task EnsureGroupOwnerSessionAsync(
         string name = session.GuestName;
 
         if (session.IsOwnerSession)
-        {
-     throw new ValidationException("Owner session cannot be deleted.");
-        }
         {
             var groupReservation =
                 await groupReservationRepository.GetGroupReservationByIdAsync(
