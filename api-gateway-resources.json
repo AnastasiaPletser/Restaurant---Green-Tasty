@@ -1,0 +1,576 @@
+﻿{
+    "items": [
+        {
+            "id": "04low7",
+            "parentId": "wvb92y",
+            "pathPart": "available-time-slots",
+            "path": "/tables/{id}/available-time-slots",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "076o9s",
+            "parentId": "pi3an8",
+            "pathPart": "{groupReservationId}",
+            "path": "/guest/groups/{groupReservationId}"
+        },
+        {
+            "id": "1h7xue",
+            "parentId": "p7wz93",
+            "pathPart": "{reservationId}",
+            "path": "/reservations/{reservationId}",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "1i7589",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "users",
+            "path": "/users",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "1j23sfcu9e",
+            "path": "/"
+        },
+        {
+            "id": "2fr4r5",
+            "parentId": "1h7xue",
+            "pathPart": "feedback",
+            "path": "/reservations/{reservationId}/feedback",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "2fug4e",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "guest",
+            "path": "/guest"
+        },
+        {
+            "id": "2jk10c",
+            "parentId": "9gbtf2",
+            "pathPart": "menu",
+            "path": "/guest/sessions/{guestSessionId}/menu",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "2kae9p",
+            "parentId": "prowdz",
+            "pathPart": "{groupReservationId}",
+            "path": "/guest/group/{groupReservationId}"
+        },
+        {
+            "id": "2tmj9l",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "locations",
+            "path": "/locations",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "37po78",
+            "parentId": "kbj1qy",
+            "pathPart": "generate",
+            "path": "/reports/generate",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "43mnfn",
+            "parentId": "eyyelc",
+            "pathPart": "{userId}",
+            "path": "/waiters/{userId}"
+        },
+        {
+            "id": "48qfna",
+            "parentId": "fla8ic",
+            "pathPart": "{reservationId}",
+            "path": "/orders/{reservationId}",
+            "resourceMethods": {
+                "DELETE": {},
+                "GET": {},
+                "OPTIONS": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "4k3n4l",
+            "parentId": "ytba44",
+            "pathPart": "change-password",
+            "path": "/me/change-password",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "5hn8a6",
+            "parentId": "1i7589",
+            "pathPart": "{id}",
+            "path": "/users/{id}"
+        },
+        {
+            "id": "5mz22f",
+            "parentId": "43mnfn",
+            "pathPart": "location",
+            "path": "/waiters/{userId}/location",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "6oqi9i",
+            "parentId": "yp8wqj",
+            "pathPart": "{token}",
+            "path": "/guest/invites/{token}",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "766mto",
+            "parentId": "2tmj9l",
+            "pathPart": "{id}",
+            "path": "/locations/{id}",
+            "resourceMethods": {
+                "DELETE": {},
+                "GET": {},
+                "OPTIONS": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "8qn17s",
+            "parentId": "9gbtf2",
+            "pathPart": "dishes",
+            "path": "/guest/sessions/{guestSessionId}/dishes",
+            "resourceMethods": {
+                "DELETE": {},
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "9gbtf2",
+            "parentId": "x5rcvb",
+            "pathPart": "{guestSessionId}",
+            "path": "/guest/sessions/{guestSessionId}",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "9zznev",
+            "parentId": "blq0ig",
+            "pathPart": "{guestSessionId}",
+            "path": "/guest/groups/{groupReservationId}/sessions/{guestSessionId}",
+            "resourceMethods": {
+                "DELETE": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "af8erc",
+            "parentId": "kbj1qy",
+            "pathPart": "download",
+            "path": "/reports/download",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "b61two",
+            "parentId": "f6rot6",
+            "pathPart": "{id}",
+            "path": "/notifications/{id}"
+        },
+        {
+            "id": "blq0ig",
+            "parentId": "076o9s",
+            "pathPart": "sessions",
+            "path": "/guest/groups/{groupReservationId}/sessions",
+            "resourceMethods": {
+                "GET": {}
+            }
+        },
+        {
+            "id": "dgcjlw",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "feedback",
+            "path": "/feedback",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {},
+                "POST": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "ds6vmn",
+            "parentId": "48qfna",
+            "pathPart": "unsubmit",
+            "path": "/orders/{reservationId}/unsubmit",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "ejx2xm",
+            "parentId": "ffuylo",
+            "pathPart": "cancellations",
+            "path": "/reservations/{reservationId}/order/cancellations"
+        },
+        {
+            "id": "ekxms5",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "available-tables",
+            "path": "/available-tables",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "ers68v",
+            "parentId": "1h7xue",
+            "pathPart": "invite-token",
+            "path": "/reservations/{reservationId}/invite-token",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "eyyelc",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "waiters",
+            "path": "/waiters",
+            "resourceMethods": {
+                "DELETE": {},
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "f6rot6",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "notifications",
+            "path": "/notifications",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "ffuylo",
+            "parentId": "1h7xue",
+            "pathPart": "order",
+            "path": "/reservations/{reservationId}/order"
+        },
+        {
+            "id": "fla8ic",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "orders",
+            "path": "/orders",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "ft4pv1",
+            "parentId": "1h7xue",
+            "pathPart": "table",
+            "path": "/reservations/{reservationId}/table",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "PATCH": {}
+            }
+        },
+        {
+            "id": "ftez59",
+            "parentId": "b61two",
+            "pathPart": "read",
+            "path": "/notifications/{id}/read",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "PATCH": {}
+            }
+        },
+        {
+            "id": "hnkalj",
+            "parentId": "076o9s",
+            "pathPart": "status",
+            "path": "/guest/groups/{groupReservationId}/status",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "icgzlh",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "dishes",
+            "path": "/dishes",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "jduoc9",
+            "parentId": "5hn8a6",
+            "pathPart": "name",
+            "path": "/users/{id}/name",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "kbj1qy",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "reports",
+            "path": "/reports",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "lbcobe",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "register",
+            "path": "/register",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "lzn29s",
+            "parentId": "5hn8a6",
+            "pathPart": "profile-image",
+            "path": "/users/{id}/profile-image",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "o2985n",
+            "parentId": "icgzlh",
+            "pathPart": "popular",
+            "path": "/dishes/popular",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "o8zzch",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "signin",
+            "path": "/signin",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "o9hhjd",
+            "parentId": "ffuylo",
+            "pathPart": "confirmations",
+            "path": "/reservations/{reservationId}/order/confirmations"
+        },
+        {
+            "id": "p7wz93",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "reservations",
+            "path": "/reservations",
+            "resourceMethods": {
+                "DELETE": {},
+                "GET": {},
+                "OPTIONS": {},
+                "POST": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "p9nnun",
+            "parentId": "icgzlh",
+            "pathPart": "{id}",
+            "path": "/dishes/{id}",
+            "resourceMethods": {
+                "DELETE": {},
+                "GET": {},
+                "OPTIONS": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "pi3an8",
+            "parentId": "2fug4e",
+            "pathPart": "groups",
+            "path": "/guest/groups"
+        },
+        {
+            "id": "prowdz",
+            "parentId": "2fug4e",
+            "pathPart": "group",
+            "path": "/guest/group"
+        },
+        {
+            "id": "qhgj5l",
+            "parentId": "9gbtf2",
+            "pathPart": "submit",
+            "path": "/guest/sessions/{guestSessionId}/submit",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "rdsi6n",
+            "parentId": "ytba44",
+            "pathPart": "profile-image",
+            "path": "/me/profile-image",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "rwwxqg",
+            "parentId": "ejx2xm",
+            "pathPart": "{dishId}",
+            "path": "/reservations/{reservationId}/order/cancellations/{dishId}",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "PATCH": {}
+            }
+        },
+        {
+            "id": "s6sff8",
+            "parentId": "48qfna",
+            "pathPart": "submit",
+            "path": "/orders/{reservationId}/submit",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "sc5lgv",
+            "parentId": "2kae9p",
+            "pathPart": "sessions",
+            "path": "/guest/group/{groupReservationId}/sessions",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "ucrcjl",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "tables",
+            "path": "/tables",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "wudptf",
+            "parentId": "o9hhjd",
+            "pathPart": "{dishId}",
+            "path": "/reservations/{reservationId}/order/confirmations/{dishId}",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "PATCH": {}
+            }
+        },
+        {
+            "id": "wvb92y",
+            "parentId": "ucrcjl",
+            "pathPart": "{id}",
+            "path": "/tables/{id}",
+            "resourceMethods": {
+                "DELETE": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "x5rcvb",
+            "parentId": "2fug4e",
+            "pathPart": "sessions",
+            "path": "/guest/sessions",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "POST": {}
+            }
+        },
+        {
+            "id": "x9tw21",
+            "parentId": "766mto",
+            "pathPart": "dishes",
+            "path": "/locations/{id}/dishes",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {}
+            }
+        },
+        {
+            "id": "yp8wqj",
+            "parentId": "2fug4e",
+            "pathPart": "invites",
+            "path": "/guest/invites"
+        },
+        {
+            "id": "ytba44",
+            "parentId": "1j23sfcu9e",
+            "pathPart": "me",
+            "path": "/me",
+            "resourceMethods": {
+                "GET": {},
+                "OPTIONS": {},
+                "PUT": {}
+            }
+        },
+        {
+            "id": "zdn62x",
+            "parentId": "1h7xue",
+            "pathPart": "status",
+            "path": "/reservations/{reservationId}/status",
+            "resourceMethods": {
+                "OPTIONS": {},
+                "PATCH": {}
+            }
+        }
+    ]
+}
