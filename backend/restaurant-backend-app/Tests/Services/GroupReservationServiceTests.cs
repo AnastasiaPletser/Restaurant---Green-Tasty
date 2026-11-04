@@ -224,6 +224,7 @@ public class GroupReservationServiceTests
     {
         reservation.Status = ReservationStatus.Reserved;
         reservation.GuestCount = 3;
+        reservation.CustomerId = "owner-1";
 
         groupReservation.ReservationId = reservation.Id;
         groupReservation.Status = GroupReservationStatus.Open;
@@ -238,7 +239,7 @@ public class GroupReservationServiceTests
 
         GetGroupInviteTokenResponse result =
             await _service.GetGroupReservationInviteTokenAsync(
-                reservation.Id);
+                reservation.CustomerId!, reservation.Id);
 
         Assert.Equal(groupReservation.ReservationToken, result.Token);
     }
@@ -253,7 +254,7 @@ public class GroupReservationServiceTests
             .ReturnsAsync((Reservation?)null);
 
         await Assert.ThrowsAsync<ReservationNotFoundException>(
-            () => _service.GetGroupReservationInviteTokenAsync(
+            () => _service.GetGroupReservationInviteTokenAsync("owner-1",
                 reservationId));
     }
 
@@ -264,13 +265,14 @@ public class GroupReservationServiceTests
     {
         reservation.Status = ReservationStatus.Reserved;
         reservation.GuestCount = 1;
+        reservation.CustomerId = "owner-1";
 
         _reservationRepositoryMock
             .Setup(r => r.GetReservationByIdAsync(reservation.Id))
             .ReturnsAsync(reservation);
 
         await Assert.ThrowsAsync<ValidationException>(
-            () => _service.GetGroupReservationInviteTokenAsync(
+            () => _service.GetGroupReservationInviteTokenAsync("owner-1",
                 reservation.Id));
     }
 
@@ -284,13 +286,14 @@ public class GroupReservationServiceTests
     {
         reservation.Status = reservationStatus;
         reservation.GuestCount = 1;
+        reservation.CustomerId = "owner-1";
 
         _reservationRepositoryMock
             .Setup(r => r.GetReservationByIdAsync(reservation.Id))
             .ReturnsAsync(reservation);
 
         await Assert.ThrowsAsync<ValidationException>(
-            () => _service.GetGroupReservationInviteTokenAsync(
+            () => _service.GetGroupReservationInviteTokenAsync("owner-1",
                 reservation.Id));
     }
 
@@ -305,6 +308,7 @@ public class GroupReservationServiceTests
     {
         reservation.Status = ReservationStatus.Reserved;
         reservation.GuestCount = 3;
+        reservation.CustomerId = "owner-1";
 
         groupReservation.ReservationId = reservation.Id;
         groupReservation.Status = status;
@@ -318,8 +322,27 @@ public class GroupReservationServiceTests
             .ReturnsAsync(groupReservation);
 
         await Assert.ThrowsAsync(type,
-            () => _service.GetGroupReservationInviteTokenAsync(
+            () => _service.GetGroupReservationInviteTokenAsync("owner-1",
                 reservation.Id));
+    }
+
+    [Theory]
+    [AutoData]
+    public async Task GetGroupReservationInviteTokenAsync_NonOwner_ThrowsForbidden(
+        Reservation reservation,
+        GroupReservation groupReservation)
+    {
+        reservation.Status = ReservationStatus.Reserved;
+        reservation.GuestCount = 3;
+        reservation.CustomerId = "owner-1";
+        groupReservation.ReservationId = reservation.Id;
+        groupReservation.Status = GroupReservationStatus.Open;
+
+        _reservationRepositoryMock.Setup(r => r.GetReservationByIdAsync(reservation.Id))
+            .ReturnsAsync(reservation);
+
+        await Assert.ThrowsAsync<ActionForbiddenException>(
+            () => _service.GetGroupReservationInviteTokenAsync("another-user", reservation.Id));
     }
 
     [Theory]

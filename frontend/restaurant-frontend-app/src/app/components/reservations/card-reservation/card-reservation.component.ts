@@ -3,11 +3,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  effect,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Params, Router } from '@angular/router';
 
 import { CreateOrderRequest } from '@app/models/cart/create-order-request.model';
@@ -18,6 +21,8 @@ import {
 import { PlaceOrderWaiterComponent } from '@app/components/place-order-waiter/place-order-waiter.component';
 import { Roles } from '@app/shared/constants/roles';
 import { CustomSelectComponent } from '@app/shared/custom-components/custom-select/custom-select.component';
+import { GuestInviteService } from '@app/services/reservation/guest-invite.service';
+import { ToastService } from '@app/services/toast/toast.service';
 
 interface ReservationStatusView {
   class: string;
@@ -45,6 +50,9 @@ interface WaiterPreOrderNavigationData {
 })
 export class CardReservationComponent {
   private readonly router = inject(Router);
+  private readonly guestInviteService = inject(GuestInviteService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly Roles = Roles;
   readonly ReservationStatusCustomer = ReservationStatusCustomer;
 
@@ -93,6 +101,83 @@ export class CardReservationComponent {
 
   readonly preOrder = output<CreateOrderRequest>();
   readonly showWaiterOrderModal = signal(false);
+  readonly inviteLink = signal<string | null>(null);
+  readonly inviteLoading = signal(false);
+  private requestedInviteReservationId: string | null = null;
+  private tokenRequestedReservationId: string | null = null;
+  readonly inviteStatus = computed(() => {
+    const reservation = this.r();
+    if (reservation.status === ReservationStatusCustomer.Cancelled ||
+        reservation.status === ReservationStatusCustomer.Finished) {
+      return 'Closed';
+    }
+    return reservation.groupInvitationStatus === 'Open' ? 'Active' : 'Closed';
+  });
+  readonly hasGroupInvitation = computed(() => this.r().guestCount > 1 && !!this.r().groupInvitationStatus);
+  readonly shortenedInviteLink = computed(() => {
+    const link = this.inviteLink();
+    if (!link) return '';
+    const url = new URL(link);
+    return `${url.origin}/join/…${url.pathname.split('/').pop()?.slice(-8) ?? ''}`;
+  });
+
+  constructor() {
+    effect(() => {
+      const reservation = this.r();
+      if (this.requestedInviteReservationId !== reservation.id) {
+        this.requestedInviteReservationId = reservation.id;
+        this.tokenRequestedReservationId = null;
+        this.inviteLink.set(null);
+      }
+      if (reservation.guestInviteLinkAvailable && reservation.groupInvitationStatus === 'Open' &&
+          this.tokenRequestedReservationId !== reservation.id) {
+        this.tokenRequestedReservationId = reservation.id;
+        this.inviteLoading.set(true);
+        this.guestInviteService.getInviteToken$(reservation.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: ({ token }) => {
+              this.inviteLink.set(`${window.location.origin}/join/${token}`);
+              this.inviteLoading.set(false);
+            },
+            error: () => {
+              this.inviteLoading.set(false);
+              this.toastService.error('Could not load the invitation link. Please try again later.');
+            },
+          });
+      }
+    });
+  }
+
+  async onCopyInviteLink(): Promise<void> {
+    const link = this.inviteLink();
+    if (!link) return;
+    try {
+      await navigator.clipboard.writeText(link);
+      this.toastService.success('Invitation link copied!');
+    } catch {
+      this.toastService.error('Could not copy the invitation link. Please copy it manually.');
+    }
+  }
+
+  async onShareInviteLink(): Promise<void> {
+    const link = this.inviteLink();
+    if (!link) return;
+    if (!navigator.share) {
+      await this.onCopyInviteLink();
+      return;
+    }
+    try {
+      await navigator.share({
+        title: 'Green & Tasty — Group Order',
+        text: 'Join our group pre-order!',
+        url: link,
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') return;
+      this.toastService.error('Could not share the invitation link. Please try copying it.');
+    }
+  }
 
   readonly statusView = computed<ReservationStatusView>(() => {
     const reservation = this.r();

@@ -17,6 +17,7 @@ export interface Reservation {
   preOrder?: Order;
   preOrders?: Order[];
   guestInviteLinkAvailable?: boolean;
+  groupInvitationStatus?: 'Open' | 'Submitted' | 'Closed';
 }
 
 export enum ReservationStatus {
@@ -44,6 +45,8 @@ export interface ReservationCustomer {
   preOrders?: Order[];
   createdByName?: string;
   createdByRole?: 'Customer' | 'Waiter';
+  guestInviteLinkAvailable?: boolean;
+  groupInvitationStatus?: 'Open' | 'Submitted' | 'Closed';
 }
 
 export enum ReservationStatusCustomer {

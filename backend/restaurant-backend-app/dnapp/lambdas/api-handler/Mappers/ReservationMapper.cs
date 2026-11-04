@@ -23,7 +23,7 @@ public static class ReservationMapper
     };
 
 
-    public static ReservationResponse ToReservationResponse(Reservation reservation, string address, Order? order = null, string restaurantName = "Green & Tasty", bool guestInviteLinkAvailable = false)
+    public static ReservationResponse ToReservationResponse(Reservation reservation, string address, Order? order = null, string restaurantName = "Green & Tasty", bool guestInviteLinkAvailable = false, string? groupInvitationStatus = null)
     => new()
     {
         Id = reservation.Id,
@@ -38,5 +38,6 @@ public static class ReservationMapper
         CustomerId = reservation.CustomerId, // for waiter dashboard
         HasSubmittedPreOrder = order is not null && order.Status == OrderStatus.Submitted,
         GuestInviteLinkAvailable = guestInviteLinkAvailable,
+        GroupInvitationStatus = groupInvitationStatus,
     };
 }

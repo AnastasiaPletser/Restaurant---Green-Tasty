@@ -3,6 +3,9 @@ import { provideRouter } from '@angular/router';
 import { CardReservationComponent } from './card-reservation.component';
 import { API_BASE_URL } from '@app/shared/config/api-base-url.token';
 import { ReservationCustomer, ReservationStatusCustomer } from '@app/models/reservations/reservation.model';
+import { GuestInviteService } from '@app/services/reservation/guest-invite.service';
+import { ToastService } from '@app/services/toast/toast.service';
+import { of } from 'rxjs';
 
 const RESERVATION: ReservationCustomer = {
   id: 'res-1',
@@ -22,7 +25,12 @@ describe('CardReservationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [{ provide: API_BASE_URL, useValue: 'https://test.api' }, provideRouter([])],
+      providers: [
+        { provide: API_BASE_URL, useValue: 'https://test.api' },
+        { provide: GuestInviteService, useValue: { getInviteToken$: () => of({ token: 'stable-token' }) } },
+        { provide: ToastService, useValue: { success: () => undefined, error: () => undefined } },
+        provideRouter([]),
+      ],
       imports: [CardReservationComponent],
     }).compileComponents();
 

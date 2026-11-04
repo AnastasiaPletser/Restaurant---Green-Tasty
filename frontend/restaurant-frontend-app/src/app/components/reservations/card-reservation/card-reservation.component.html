@@ -122,6 +122,31 @@
     </div>
   </div>
 
+  @if (role() === Roles.CUSTOMER && hasGroupInvitation()) {
+    <section class="group-invitation" aria-label="Group Order Invitation">
+      <div class="invitation-heading">
+        <strong>Group Order Invitation</strong>
+        <span class="invitation-status" [class.closed]="inviteStatus() === 'Closed'">
+          {{ inviteStatus() }}
+        </span>
+      </div>
+
+      @if (inviteStatus() === 'Active') {
+        <div class="invitation-controls">
+          <span class="invitation-link" [title]="inviteLink() ?? ''">
+            {{ inviteLoading() ? 'Loading link…' : shortenedInviteLink() }}
+          </span>
+          <button type="button" class="button button--secondary invitation-button"
+            [disabled]="!inviteLink()" (click)="onCopyInviteLink()">Copy link</button>
+          <button type="button" class="button button--tertiary invitation-button"
+            [disabled]="!inviteLink()" (click)="onShareInviteLink()">Share</button>
+        </div>
+      } @else {
+        <p class="invitation-closed">This group order is closed. New guests can no longer join.</p>
+      }
+    </section>
+  }
+
   <div class="actions">
     @switch (r().status) {
       @case (ReservationStatusCustomer.Reserved) {

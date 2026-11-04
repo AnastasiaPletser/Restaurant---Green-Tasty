@@ -135,14 +135,25 @@ public class GetReservationsForUserHandler : IApiRequestHandler
             var reservationOrder = await _orderService.GetOrderByReservationIdAsync(reservation.Id);
 
             bool guestInviteLinkAvailable = false;
-            if (reservation.GuestCount > 1 && reservation.Status != ReservationStatus.Completed)
+            string? groupInvitationStatus = null;
+            if (reservation.GuestCount > 1)
             {
                 GroupReservation? groupReservation = await _groupReservationRepository.GetByReservationIdAsync(reservation.Id);
                 if (groupReservation is not null)
-                    guestInviteLinkAvailable = groupReservation.Status == GroupReservationStatus.Open;
+                {
+                    groupInvitationStatus = groupReservation.Status.ToString();
+                    guestInviteLinkAvailable = groupReservation.Status == GroupReservationStatus.Open &&
+                                                reservation.Status == ReservationStatus.Reserved;
+                }
             }
 
-            return ReservationMapper.ToReservationResponse(reservation, location.Address, reservationOrder, guestInviteLinkAvailable: guestInviteLinkAvailable);
+            if (reservation.GuestCount > 1 && reservation.Status != ReservationStatus.Reserved && groupInvitationStatus is not null)
+            {
+                guestInviteLinkAvailable = false;
+                groupInvitationStatus = "Closed";
+            }
+
+            return ReservationMapper.ToReservationResponse(reservation, location.Address, reservationOrder, guestInviteLinkAvailable: guestInviteLinkAvailable, groupInvitationStatus: groupInvitationStatus);
         }
         catch (Exception ex)
         {
